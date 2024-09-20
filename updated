@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Define a struct to represent a Student
+typedef struct Student {
+    char name[50];       // Student's name
+    int id;              // Student's ID
+    int num_grades;      // Number of grades
+    float *grades;       // Array to hold grades
+} Student;
+
+// Function to create a new student and initialize fields
+Student *create_student(const char *name, int id, int num_grades) {
+    // Allocate memory for the student
+    Student *s = (Student *)malloc(sizeof(Student));
+    if (s == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return NULL;
+    }
+
+    // Initialize student's name
+    strncpy(s->name, name, sizeof(s->name) - 1);
+    s->name[sizeof(s->name) - 1] = '\0';
+
+    // Initialize student's ID and number of grades
+    s->id = id;
+    s->num_grades = num_grades;
+
+    // Allocate memory for the grades array
+    s->grades = (float *)malloc(num_grades * sizeof(float));
+    if (s->grades == NULL) {
+        fprintf(stderr, "Memory allocation failed for grades\n");
+        free(s);  // Free the student struct if grades allocation fails
+        return NULL;
+    }
+
+    return s;  // Return the pointer to the new student
+}
+
+// Function to update the student's grades
+void update_grades(Student *s, float *new_grades) {
+    for (int i = 0; i < s->num_grades; i++) {
+        // Update each grade in the student's grades array
+        s->grades[i] = new_grades[i];
+    }
+}
+
+// Function to print the student's details
+void print_student(const Student *s) {
+    // Print student's name and ID
+    printf("Name: %s\n", s->name);
+    printf("ID: %d\n", s->id);
+
+    // Print all grades
+    printf("Grades: ");
+    for (int i = 0; i < s->num_grades; i++) {
+        printf("%.2f ", s->grades[i]);
+    }
+    printf("\n");
+
+    // Optionally, calculate and print the average of the grades
+    float sum = 0;
+    for (int i = 0; i < s->num_grades; i++) {
+        sum += s->grades[i];
+    }
+    printf("Average Grade: %.2f\n", sum / s->num_grades);
+}
+
+// Function to free the memory allocated for the student
+void free_student(Student *s) {
+    // Free the memory for the grades array
+    free(s->grades);
+
+    // Free the memory for the student struct itself
+    free(s);
+}
+
+int main() {
+    int num_grades;
+
+    // Get the number of grades from the user
+    printf("Enter number of grades: ");
+    scanf("%d", &num_grades);
+
+    // Create a student instance
+    Student *s = create_student("John Doe", 12345, num_grades);
+    if (s == NULL) {
+        return 1;  // Exit if memory allocation failed
+    }
+
+    // Allocate memory for the grades array
+    float *grades = (float *)malloc(num_grades * sizeof(float));
+    if (grades == NULL) {
+        fprintf(stderr, "Memory allocation failed for grades\n");
+        free_student(s);
+        return 1;
+    }
+
+    // Input grades from the user
+    printf("Enter grades:\n");
+    for (int i = 0; i < num_grades; i++) {
+        scanf("%f", &grades[i]);
+    }
+
+    // Update and print the student's information
+    update_grades(s, grades);
+    print_student(s);
+
+    // Free all allocated memory
+    free(grades);
+    free_student(s);
+
+    return 0;
+}
